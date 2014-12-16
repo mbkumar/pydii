@@ -37,7 +37,7 @@ def get_def_profile(mpid, T,  file):
     vacs = raw_energy_dict[mpid]['vacancies']
     antisites = raw_energy_dict[mpid]['antisites']
     vacs.sort(key=lambda entry: entry['site_index'])
-    antsites.sort(key=lambda entry: entry['site_index'])
+    antisites.sort(key=lambda entry: entry['site_index'])
     for vac_def in vacs:
         if not vac_def:
             print 'All vacancy defect energies not present'
