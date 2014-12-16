@@ -133,7 +133,8 @@ def im_vac_antisite_def_profile():
                  "For more info on Materials Project, please refer to " \
                  "www.materialsproject.org")
 
-    parser.add_argument('-T', "--temp", type=float, help="Temperature in Kelvin")
+    parser.add_argument('-T', "--temp", type=float, default=1000,
+            help="Temperature in Kelvin")
 
     parser.add_argument("--file",
             default = None,
@@ -155,9 +156,6 @@ def im_vac_antisite_def_profile():
         file = args.mpid+'_raw_defect_energy.json'
     else:
         file = args.file
-    if not args.temp:
-        print ('===========\nERROR: Temperature is not given.\n===========')
-        return
 
 
     conc_dat, en_dat, mu_dat = get_def_profile(args.mpid, args.temp,  file)
@@ -193,7 +191,8 @@ def im_sol_sub_def_profile():
     parser.add_argument("--sol_conc", type=float, default=1.0,
             help="Solute Concentration in %. Default is 1%")
 
-    parser.add_argument("-T", "--temp", type=float, help="Temperature in Kelvin")
+    parser.add_argument("-T", "--temp", type=float, default=1000,
+            help="Temperature in Kelvin")
     parser.add_argument("--trail_mu_file",  default=None,
             help="Trial chemcal potential in dict format stored in file")
 
@@ -201,9 +200,6 @@ def im_sol_sub_def_profile():
 
     if not args.mpid:
         print ('===========\nERROR: mpid is not given.\n===========')
-        return
-    if not args.temp:
-        print ('===========\nERROR: Temperature is not given.\n===========')
         return
     if not args.solute:
         print ('===========\nERROR: Solute atom is not given.\n===========')
