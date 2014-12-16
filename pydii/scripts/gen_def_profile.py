@@ -36,6 +36,8 @@ def get_def_profile(mpid, T,  file):
     struct = raw_energy_dict[mpid]['structure']
     vacs = raw_energy_dict[mpid]['vacancies']
     antisites = raw_energy_dict[mpid]['antisites']
+    vacs.sort(key=lambda entry: entry['site_index'])
+    antsites.sort(key=lambda entry: entry['site_index'])
     for vac_def in vacs:
         if not vac_def:
             print 'All vacancy defect energies not present'
@@ -64,6 +66,9 @@ def get_solute_def_profile1(mpid, solute, solute_conc, T, def_file, sol_file):
     vacs = raw_energy_dict[mpid]['vacancies']
     antisites = raw_energy_dict[mpid]['antisites']
     solutes = sol_raw_energy_dict[mpid]['solutes']
+    vacs.sort(key=lambda entry: entry['site_index'])
+    antisites.sort(key=lambda entry: entry['site_index'])
+    solutes.sort(key=lambda entry: entry['site_index'])
     for vac_def in vacs:
         if not vac_def:
             print 'All vacancy defect energies not present'
