@@ -35,7 +35,7 @@ def solute_def_parse_energy(mpid, solute, mapi_key=None):
         with MPRester() as mp:
             structure = mp.get_structure_by_material_id(mpid)      
     else:
-        with MPRester(ampi_key) as mp:
+        with MPRester(mapi_key) as mp:
             structure = mp.get_structure_by_material_id(mpid)      
 
     energy_dict = {}
@@ -103,7 +103,7 @@ def vac_antisite_def_parse_energy(mpid, mapi_key=None):
         with MPRester() as mp:
             structure = mp.get_structure_by_material_id(mpid)      
     else:
-        with MPRester(ampi_key) as mp:
+        with MPRester(mapi_key) as mp:
             structure = mp.get_structure_by_material_id(mpid)      
 
     energy_dict = {}
