@@ -44,7 +44,7 @@ def vac_antisite_def_struct_gen(mpid, mapi_key, cellmax):
         with MPRester(mapi_key) as mp:
             struct = mp.get_structure_by_material_id(mpid)
 
-    #struct = SpacegroupAnalyzer(struct).get_conventional_standard_structure()
+    struct = SpacegroupAnalyzer(struct).get_conventional_standard_structure()
     sc_scale = get_sc_scale(struct,cellmax)
 
     mpvis = MPGGAVaspInputSet()
@@ -156,6 +156,7 @@ def substitute_def_struct_gen(mpid, solute, mapi_key, cellmax):
     else:
         with MPRester(mapi_key) as mp:
             struct = mp.get_structure_by_material_id(mpid)
+    struct = SpacegroupAnalyzer(struct).get_conventional_standard_structure()
 
     mpvis = MPGGAVaspInputSet()
 
