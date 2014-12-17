@@ -105,7 +105,7 @@ def vac_antisite_def_struct_gen(mpid, mapi_key, cellmax):
             vac_str_sites = set(sc.sites)
             vac_sites = blk_str_sites - vac_str_sites
             vac_site = list(vac_sites)[0]
-            site_mult = vac.get_defectsite_multiplicity(i-1)/conv_prim_rat 
+            site_mult = int(vac.get_defectsite_multiplicity(i-1)/conv_prim_rat)
             vac_site_specie = vac_site.specie
             vac_symbol = vac_site.specie.symbol
 
@@ -201,7 +201,7 @@ def substitute_def_struct_gen(mpid, solute, mapi_key, cellmax):
         vac_str_sites = set(sc.sites)
         vac_sites = blk_str_sites - vac_str_sites
         vac_site = list(vac_sites)[0]
-        site_mult = vac.get_defectsite_multiplicity(i-1)/conv_prim_rat
+        site_mult = int(vac.get_defectsite_multiplicity(i-1)/conv_prim_rat)
         vac_site_specie = vac_site.specie
         vac_specie = vac_site.specie.symbol
 
