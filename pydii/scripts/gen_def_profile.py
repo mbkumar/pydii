@@ -54,42 +54,6 @@ def get_def_profile(mpid, T,  file):
     except:
         raise
 
-
-def get_solute_def_profile1(mpid, solute, solute_conc, T, def_file, sol_file):
-
-    raw_energy_dict = loadfn(def_file,cls=MontyDecoder)
-    sol_raw_energy_dict = loadfn(sol_file,cls=MontyDecoder)
-
-    #try:
-    e0 = raw_energy_dict[mpid]['e0']
-    struct = raw_energy_dict[mpid]['structure']
-    vacs = raw_energy_dict[mpid]['vacancies']
-    antisites = raw_energy_dict[mpid]['antisites']
-    solutes = sol_raw_energy_dict[mpid]['solutes']
-    vacs.sort(key=lambda entry: entry['site_index'])
-    antisites.sort(key=lambda entry: entry['site_index'])
-    solutes.sort(key=lambda entry: entry['site_index'])
-    for vac_def in vacs:
-        if not vac_def:
-            print 'All vacancy defect energies not present'
-            continue
-    for antisite_def in antisites:
-        if not antisite_def:
-            print 'All antisite defect energies not preset'
-            continue
-    for solute_def in solutes:
-        if not solute_def:
-            print 'All solute defect energies not preset'
-            continue
-
-    try:
-        sol_conc = solute_site_preference_finder(struct, e0, T, vacs, 
-                antisites, solutes, solute_conc)#, 
-                #trial_chem_pot={'Al':-4.120, 'Ni':-6.5136, 'Ti':-7.7861})
-        return sol_conc
-    except:
-        raise
-
 def get_solute_def_profile(mpid, solute, solute_conc, T, def_file, sol_file, 
         trial_chem_pot):
 
@@ -116,13 +80,10 @@ def get_solute_def_profile(mpid, solute, solute_conc, T, def_file, sol_file,
             continue
 
     try:
-        sol_site_pref, def_conc = solute_defect_density(struct, e0, vacs, antisites, solutes,
-                        solute_concen=solute_conc, T=T, 
-                        trial_chem_pot=trial_chem_pot, plot_style="gnuplot")
-        #sol_conc = solute_site_preference_finder(struct, e0, T, vacs, 
-        #        antisites, solutes, solute_conc)#, 
-                #trial_chem_pot={'Al':-4.120, 'Ni':-6.5136, 'Ti':-7.7861})
-        return sol_site_pref, def_conc
+        def_conc = solute_defect_density(struct, e0, vacs, 
+                antisites, solutes, solute_concen=solute_conc, T=T, 
+                trial_chem_pot=trial_chem_pot, plot_style="gnuplot")
+        return  def_conc
     except:
         raise
 
@@ -223,15 +184,11 @@ def im_sol_sub_def_profile():
     else:
         trail_chem_pot = None
 
-    solute_site_pref, pt_def_conc = get_solute_def_profile(
+    pt_def_conc = get_solute_def_profile(
             args.mpid, args.solute, sol_conc, args.temp, def_file, 
             sol_file, trial_chem_pot=trail_chem_pot)
 
-    if solute_site_pref:
-        fl_nm = args.mpid+'_solute-'+args.solute+'_site_pref.dat'
-        with open(fl_nm,'w') as fp:
-            for row in solute_site_pref:
-                print >> fp, row
+    if pt_def_conc:
         fl_nm = args.mpid+'_solute-'+args.solute+'_def_concentration.dat'
         with open(fl_nm,'w') as fp:
             for row in pt_def_conc:
