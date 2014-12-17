@@ -75,7 +75,6 @@ def vac_antisite_def_struct_gen(mpid, mapi_key, cellmax):
         i = sc_scale.index(max_sc_dim)
         sc_scale[i] -= 1
         scs = vac.make_supercells_with_defects(sc_scale)
-    print ("No. of atoms in supercell", scs[0].num_sites)
 
     for i in range(len(scs)):
         sc = scs[i]

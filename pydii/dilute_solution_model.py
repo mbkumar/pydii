@@ -1243,8 +1243,8 @@ def solute_site_preference_finder(
 
     y_data = []
     inds = specie_site_index_map[m-1]
-    data1 = np.sum([conc[ind][0] for ind in range(*inds)],axis=0)
-    data2 = np.sum([conc[ind][1] for ind in range(*inds)],axis=0)
+    data1 = np.sum([multiplicity[0]*conc[ind][0] for ind in range(*inds)],axis=0)
+    data2 = np.sum([multiplicity[1]*conc[ind][1] for ind in range(*inds)],axis=0)
     frac_data = data1/(data1+data2)
     frac_data = frac_data.tolist()
     y_data.append({'data':frac_data})

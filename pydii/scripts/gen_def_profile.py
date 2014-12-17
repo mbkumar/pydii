@@ -196,7 +196,7 @@ def im_sol_sub_def_profile():
     parser.add_argument("--sol_conc", type=float, default=1.0,
             help="Solute Concentration in %. Default is 1%")
 
-    parser.add_argument("-T", "--temp", type=float, default=1000,
+    parser.add_argument("-T", "--temp", type=float, default=1000.0,
             help="Temperature in Kelvin")
     parser.add_argument("--trail_mu_file",  default=None,
             help="Trial chemcal potential in dict format stored in file")
