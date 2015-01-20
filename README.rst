@@ -16,7 +16,7 @@ If not available already, use the following steps.
 
 #. Download the pydii source code using the command::
 
-    git clone https://github.com/mbkumar/pydii.git
+    git clone https://github.com/pydii/pydii.git
 
 Installation
 ------------
@@ -30,6 +30,17 @@ Installation
 
 The command tries to obtain the required packages and their dependencies and install them automatically.
 Access to root may be needed if ``virtualenv`` is not used.
+
+# The package can be installed at non-standard locations using the command::
+
+    python setup.py install --prefix PYDII_ROOTDIR
+
+where PYDII_ROOTDIR is your choice of directory. In UNIX/Linux environments, 
+add PYDII_ROOTDIR to PATH and PYTHONPATH variables by the following commands::
+    
+    export PATH=$PATH:PYDII_ROOTDIR
+    export PYTHONPATH=$PYTHONPATH:PYDII_ROOTDIR    
+
 
 Examples
 --------
