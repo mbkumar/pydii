@@ -195,9 +195,9 @@ def get_omega(M, n, dC, dE, e0, c0, multiplicity, mu, site_mu_map, beta):
 
 @requires(scipy_found,
           "Dilute solution model requires scipy module. Please install it.")
-def dilute_solution_model_without_sympy(structure, e0, vac_defs, antisite_defs,
-                                        T, trial_chem_pot=None, generate='plot',
-                                        constrained_species=[], comps=None):
+def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
+                          trial_chem_pot=None, generate='plot',
+                          constrained_species=[], comps=None):
 
     """
     Compute the defect densities using dilute solution model.
@@ -691,11 +691,10 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
     #        constrained_species=constrained_species,
     #        comps=comps,
     #        trial_chem_pot=trial_chem_pot)
-    conc_data, en_data, mu_data = dilute_solution_model_without_sympy(
-            structure,e0,vac_defs,antisite_defs,T, 
+    conc_data, en_data, mu_data = dilute_solution_model(
+            structure, e0, vac_defs, antisite_defs, T,
             constrained_species=constrained_species,
-            comps=comps,
-            trial_chem_pot=trial_chem_pot)
+            comps=comps, trial_chem_pot=trial_chem_pot)
 
     if plot_style == 'highcharts':
         "Energy data is ignored in this mode"
@@ -1282,10 +1281,10 @@ def solute_site_preference_finder(structure, e0, T, vac_defs, antisite_defs,
 
 @requires(scipy_found,
           "Dilute solution model requires scipy module. Please install it.")
-def solute_site_preference_finder1_without_sympy(structure, e0, T, vac_defs,
-                                                 antisite_defs, solute_defs,
-                                                 trial_chem_pot, comps,
-                                                 constrained_species=[]):
+def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
+                                                antisite_defs, solute_defs,
+                                                trial_chem_pot, comps,
+                                                constrained_species=[]):
 
     """
     Compute the solute defect densities using dilute solution model.
@@ -1612,8 +1611,8 @@ def solute_site_preference_finder1_without_sympy(structure, e0, T, vac_defs,
 @requires(sympy_found,
           "solute_defect_density requires Sympy module. Please install it.")
 def solute_defect_density(structure, e0, vac_defs, antisite_defs, solute_defs,
-        solute_concen=0.01, T=800, trial_chem_pot = None,
-        plot_style="highcharts"):
+                          solute_concen=0.01, T=800, trial_chem_pot = None,
+                          plot_style="highcharts"):
 
     """
     Wrapper for the solute_site_preference_finder.
@@ -1740,7 +1739,7 @@ def solute_defect_density_no_sympy(structure, e0, vac_defs, antisite_defs,
     """
 
     #solute_site_pref_data, def_conc_data = solute_site_preference_finder(
-    def_conc_data = solute_site_preference_finder1_without_sympy(
+    def_conc_data = solute_site_preference_finder_without_sympy(
         structure, e0, T, vac_defs, antisite_defs, solute_defs,
         trial_chem_pot, comps, constrained_species=constrained_species)
 
