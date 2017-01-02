@@ -30,7 +30,6 @@ from pydii.dilute_solution_model import compute_defect_density, \
     solute_defect_density, solute_defect_density_no_sympy
 
 
-
 def get_sc_scale(inp_struct, final_site_no):
     lengths = inp_struct.lattice.abc
     no_sites = inp_struct.num_sites
@@ -60,14 +59,15 @@ def vac_antisite_def_struct_gen(args):
     struct = SpacegroupAnalyzer(struct).get_conventional_standard_structure()
     conv_struct_sites = len(struct.sites)
     conv_prim_rat = int(conv_struct_sites/prim_struct_sites)
-    sc_scale = get_sc_scale(struct,cellmax)
+    sc_scale = get_sc_scale(struct, cellmax)
 
     mpvis = MPRelaxSet(struct)
 
     # Begin defaults: All default settings.
-    blk_vasp_incar_param = {'IBRION':-1,'EDIFF':1e-4,'EDIFFG':0.001,'NSW':0,}
-    def_vasp_incar_param = {'ISIF':2,'NELM':99,'IBRION':2,'EDIFF':1e-6, 
-                            'EDIFFG':0.001,'NSW':40,}
+    blk_vasp_incar_param = {'IBRION': -1, 'EDIFF': 1e-4, 'EDIFFG': 0.001,
+                            'NSW': 0}
+    def_vasp_incar_param = {'ISIF': 2, 'NELM': 99, 'IBRION': 2, 'EDIFF': 1e-6,
+                            'EDIFFG': 0.001, 'NSW': 40}
     kpoint_den = 6000
     # End defaults
     
@@ -75,12 +75,11 @@ def vac_antisite_def_struct_gen(args):
     try:
         potcar = mpvis.potcar
     except:
-        print ("VASP POTCAR folder not detected.\n" \
-              "Only INCAR, POSCAR, KPOINTS are generated.\n" \
-              "If you have VASP installed on this system, \n" \
+        print ("VASP POTCAR folder not detected.\n"
+              "Only INCAR, POSCAR, KPOINTS are generated.\n"
+              "If you have VASP installed on this system, \n"
               "refer to pymatgen documentation for configuring the settings.")
         ptcr_flag = False
-
 
     vac = Vacancy(struct, {}, {})
     scs = vac.make_supercells_with_defects(sc_scale)
@@ -93,26 +92,26 @@ def vac_antisite_def_struct_gen(args):
 
     for i in range(len(scs)):
         sc = scs[i]
-	mpvis = MPRelaxSet(sc)
+        mpvis = MPRelaxSet(sc)
         poscar = mpvis.poscar
-        kpoints = Kpoints.automatic_density(sc,kpoint_den)
+        kpoints = Kpoints.automatic_density(sc, kpoint_den)
         incar = mpvis.incar
         if ptcr_flag:
             potcar = mpvis.potcar
 
         interdir = mpid
         if not i:
-            fin_dir = os.path.join(interdir,'bulk')
+            fin_dir = os.path.join(interdir, 'bulk')
             try:
                 os.makedirs(fin_dir)
             except:
                 pass
             incar.update(blk_vasp_incar_param)
-            incar.write_file(os.path.join(fin_dir,'INCAR'))
-            poscar.write_file(os.path.join(fin_dir,'POSCAR'))
+            incar.write_file(os.path.join(fin_dir, 'INCAR'))
+            poscar.write_file(os.path.join(fin_dir, 'POSCAR'))
             if ptcr_flag:
-                potcar.write_file(os.path.join(fin_dir,'POTCAR'))
-            kpoints.write_file(os.path.join(fin_dir,'KPOINTS'))
+                potcar.write_file(os.path.join(fin_dir, 'POTCAR'))
+            kpoints.write_file(os.path.join(fin_dir, 'KPOINTS'))
         else:
             blk_str_sites = set(scs[0].sites)
             vac_str_sites = set(sc.sites)
@@ -130,11 +129,11 @@ def vac_antisite_def_struct_gen(args):
             except:
                 pass
             incar.update(def_vasp_incar_param)
-            poscar.write_file(os.path.join(fin_dir,'POSCAR'))
-            incar.write_file(os.path.join(fin_dir,'INCAR'))
+            poscar.write_file(os.path.join(fin_dir, 'POSCAR'))
+            incar.write_file(os.path.join(fin_dir, 'INCAR'))
             if ptcr_flag:
-                potcar.write_file(os.path.join(fin_dir,'POTCAR'))
-            kpoints.write_file(os.path.join(fin_dir,'KPOINTS'))
+                potcar.write_file(os.path.join(fin_dir, 'POTCAR'))
+            kpoints.write_file(os.path.join(fin_dir, 'KPOINTS'))
 
             # Antisite generation at all vacancy sites
             struct_species = scs[0].types_of_specie
@@ -142,22 +141,22 @@ def vac_antisite_def_struct_gen(args):
                 subspecie_symbol = specie.symbol
                 anti_struct = sc.copy()
                 anti_struct.append(specie, vac_site.frac_coords)
-		mpvis = MPRelaxSet(anti_struct)
+                mpvis = MPRelaxSet(anti_struct)
                 poscar = mpvis.poscar
                 incar = mpvis.incar
                 incar.update(def_vasp_incar_param)
                 as_dir ='antisite_{}_mult-{}_sitespecie-{}_subspecie-{}'.format(
                         str(i), site_mult, vac_symbol, subspecie_symbol)
-                fin_dir = os.path.join(interdir,as_dir)
+                fin_dir = os.path.join(interdir, as_dir)
                 try:
                     os.makedirs(fin_dir)
                 except:
                     pass
-                poscar.write_file(os.path.join(fin_dir,'POSCAR'))
-                incar.write_file(os.path.join(fin_dir,'INCAR'))
+                poscar.write_file(os.path.join(fin_dir, 'POSCAR'))
+                incar.write_file(os.path.join(fin_dir, 'INCAR'))
                 if ptcr_flag:
-                        potcar.write_file(os.path.join(fin_dir,'POTCAR'))
-                kpoints.write_file(os.path.join(fin_dir,'KPOINTS'))
+                        potcar.write_file(os.path.join(fin_dir, 'POTCAR'))
+                kpoints.write_file(os.path.join(fin_dir, 'KPOINTS'))
 
 
 def substitute_def_struct_gen(args):
@@ -187,9 +186,8 @@ def substitute_def_struct_gen(args):
     mpvis = MPRelaxSet(struct)
 
     # Begin defaults: All default settings.
-    blk_vasp_incar_param = {'IBRION':-1,'EDIFF':1e-4,'EDIFFG':0.001,'NSW':0,}
-    def_vasp_incar_param = {'ISIF':2,'NELM':99,'IBRION':2,'EDIFF':1e-6, 
-                            'EDIFFG':0.001,'NSW':40,}
+    def_vasp_incar_param = {'ISIF': 2, 'NELM': 99, 'IBRION': 2, 'EDIFF': 1e-6,
+                            'EDIFFG': 0.001, 'NSW': 40}
     kpoint_den = 6000
     # End defaults
     
@@ -198,14 +196,14 @@ def substitute_def_struct_gen(args):
     try:
         potcar = mpvis.potcar
     except:
-        print ("VASP POTCAR folder not detected.\n" \
-              "Only INCAR, POSCAR, KPOINTS are generated.\n" \
-              "If you have VASP installed on this system, \n" \
+        print ("VASP POTCAR folder not detected.\n"
+              "Only INCAR, POSCAR, KPOINTS are generated.\n"
+              "If you have VASP installed on this system, \n"
               "refer to pymatgen documentation for configuring the settings.")
         ptcr_flag = False
 
     vac = Vacancy(struct, {}, {})
-    sc_scale = get_sc_scale(struct,cellmax)
+    sc_scale = get_sc_scale(struct, cellmax)
     scs = vac.make_supercells_with_defects(sc_scale)
     site_no = scs[0].num_sites
     if site_no > cellmax:
@@ -216,21 +214,19 @@ def substitute_def_struct_gen(args):
 
     interdir = mpid
     blk_str_sites = set(scs[0].sites)
-    for i in range(1,len(scs)):
+    for i in range(1, len(scs)):
         sc = scs[i]
         vac_str_sites = set(sc.sites)
         vac_sites = blk_str_sites - vac_str_sites
         vac_site = list(vac_sites)[0]
         site_mult = int(vac.get_defectsite_multiplicity(i-1)/conv_prim_rat)
-        vac_site_specie = vac_site.specie
         vac_specie = vac_site.specie.symbol
 
         # Solute substitution defect generation at all vacancy sites
-        struct_species = scs[0].types_of_specie
         solute_struct = sc.copy()
         solute_struct.append(solute, vac_site.frac_coords)
 
-	mpvis = MPRelaxSet(solute_struct)
+        mpvis = MPRelaxSet(solute_struct)
         incar = mpvis.incar
         incar.update(def_vasp_incar_param)
         poscar = mpvis.poscar
@@ -238,18 +234,18 @@ def substitute_def_struct_gen(args):
         if ptcr_flag:
             potcar = mpvis.potcar
 
-        sub_def_dir ='solute_{}_mult-{}_sitespecie-{}_subspecie-{}'.format(
+        sub_def_dir = 'solute_{}_mult-{}_sitespecie-{}_subspecie-{}'.format(
                 str(i), site_mult, vac_specie, solute)
-        fin_dir = os.path.join(interdir,sub_def_dir)
+        fin_dir = os.path.join(interdir, sub_def_dir)
         try:
             os.makedirs(fin_dir)
         except:
             pass
-        poscar.write_file(os.path.join(fin_dir,'POSCAR'))
-        incar.write_file(os.path.join(fin_dir,'INCAR'))
-        kpoints.write_file(os.path.join(fin_dir,'KPOINTS'))
+        poscar.write_file(os.path.join(fin_dir, 'POSCAR'))
+        incar.write_file(os.path.join(fin_dir, 'INCAR'))
+        kpoints.write_file(os.path.join(fin_dir, 'KPOINTS'))
         if ptcr_flag:
-            potcar.write_file(os.path.join(fin_dir,'POTCAR'))
+            potcar.write_file(os.path.join(fin_dir, 'POTCAR'))
 
 
 def solute_def_parse_energy(args):
@@ -274,14 +270,14 @@ def solute_def_parse_energy(args):
     energy_dict = {}
 
     solutes = []
-    def_folders = glob.glob(os.path.join(
-        mpid,"solute*subspecie-{}".format(solute)))
-    def_folders += glob.glob(os.path.join(mpid,"bulk"))
+    def_folders = glob.glob(os.path.join(mpid,
+                                         "solute*subspecie-{}".format(solute)))
+    def_folders += glob.glob(os.path.join(mpid, "bulk"))
     for defdir in def_folders:
         fldr_name = os.path.split(defdir)[1]
-        vr_file = os.path.join(defdir,'vasprun.xml') 
+        vr_file = os.path.join(defdir, 'vasprun.xml')
         if not os.path.exists(vr_file):
-            print (fldr_name, ": vasprun.xml doesn't exist in the folder. " \
+            print (fldr_name, ": vasprun.xml doesn't exist in the folder. "
                    "Abandoning parsing of energies for {}".format(mpid))
             break       # Further processing for the mpid is not useful
 
@@ -300,30 +296,28 @@ def solute_def_parse_energy(args):
         fldr_fields = fldr_name.split("_")
         if 'bulk' in fldr_fields:
             bulk_energy = vr.final_energy
-            bulk_sites = vr.structures[-1].num_sites
         elif 'solute' in fldr_fields:
             site_index = int(fldr_fields[1])
             site_multiplicity = int(fldr_fields[2].split("-")[1])
             site_specie = fldr_fields[3].split("-")[1]
             substitution_specie = fldr_fields[4].split("-")[1]
             energy = vr.final_energy
-            solutes.append({'site_index':site_index,
-                'site_specie':site_specie,'energy':energy,
-                'substitution_specie':substitution_specie,
-                'site_multiplicity':site_multiplicity
-                })
+            solutes.append({'site_index': site_index,
+                            'site_specie': site_specie, 'energy': energy,
+                            'substitution_specie': substitution_specie,
+                            'site_multiplicity': site_multiplicity})
     else:
         if not solutes:
             print "Solute folders do not exist"
             return {}
 
-        print ("Solute {} calculations successful for {}".format(solute,mpid))
+        print ("Solute {} calculations successful for {}".format(solute, mpid))
         for solute in solutes:
-            solute_flip_energy = solute['energy']-bulk_energy
+            solute_flip_energy = solute['energy'] - bulk_energy
             solute['energy'] = solute_flip_energy
         solutes.sort(key=lambda entry: entry['site_index'])
-        energy_dict[mpid] = {'solutes':solutes}
-        fl_nm = mpid+'_solute-'+args.solute+'_raw_defect_energy.json'
+        energy_dict[mpid] = {'solutes': solutes}
+        fl_nm = mpid+'_solute-' + args.solute + '_raw_defect_energy.json'
         dumpfn(energy_dict, fl_nm, indent=2, cls=MontyEncoder)
 
 
@@ -346,14 +340,14 @@ def vac_antisite_def_parse_energy(args):
 
     antisites = []
     vacancies = []
-    def_folders = glob.glob(os.path.join(mpid,"vacancy*"))
-    def_folders += glob.glob(os.path.join(mpid,"antisite*"))
-    def_folders += glob.glob(os.path.join(mpid,"bulk"))
+    def_folders = glob.glob(os.path.join(mpid, "vacancy*"))
+    def_folders += glob.glob(os.path.join(mpid, "antisite*"))
+    def_folders += glob.glob(os.path.join(mpid, "bulk"))
     for defdir in def_folders:
         fldr_name = os.path.split(defdir)[1]
-        vr_file = os.path.join(defdir,'vasprun.xml') 
+        vr_file = os.path.join(defdir, 'vasprun.xml')
         if not os.path.exists(vr_file):
-            print (fldr_name, ": vasprun.xml doesn't exist in the folder. " \
+            print (fldr_name, ": vasprun.xml doesn't exist in the folder. "
                    "Abandoning parsing of energies for {}".format(mpid))
             break       # Further processing for the mpid is not useful
 
@@ -378,36 +372,35 @@ def vac_antisite_def_parse_energy(args):
             site_multiplicity = int(fldr_fields[2].split("-")[1])
             site_specie = fldr_fields[3].split("-")[1]
             energy = vr.final_energy
-            vacancies.append({'site_index':site_index,
-                'site_specie':site_specie,'energy':energy,
-                'site_multiplicity':site_multiplicity
-                })
+            vacancies.append({'site_index': site_index,
+                              'site_specie': site_specie, 'energy': energy,
+                              'site_multiplicity': site_multiplicity})
         elif 'antisite' in fldr_fields:
             site_index = int(fldr_fields[1])
             site_multiplicity = int(fldr_fields[2].split("-")[1])
             site_specie = fldr_fields[3].split("-")[1]
             substitution_specie = fldr_fields[4].split("-")[1]
             energy = vr.final_energy
-            antisites.append({'site_index':site_index,
-                'site_specie':site_specie,'energy':energy,
-                'substitution_specie':substitution_specie,
-                'site_multiplicity':site_multiplicity
-                })
+            antisites.append({'site_index': site_index,
+                              'site_specie': site_specie, 'energy': energy,
+                              'substitution_specie': substitution_specie,
+                              'site_multiplicity': site_multiplicity})
     else:
         print "All calculations successful for ", mpid
-        e0 = bulk_energy/bulk_sites*structure.num_sites
+        e0 = bulk_energy / bulk_sites * structure.num_sites
         for vac in vacancies:
-            vac_flip_energy = vac['energy']-bulk_energy
+            vac_flip_energy = vac['energy'] - bulk_energy
             vac['energy'] = vac_flip_energy
         vacancies.sort(key=lambda entry: entry['site_index'])
         for antisite in antisites:
-            as_flip_energy = antisite['energy']-bulk_energy
+            as_flip_energy = antisite['energy'] - bulk_energy
             antisite['energy'] = as_flip_energy
         antisites.sort(key=lambda entry: entry['site_index'])
-        energy_dict[unicode(mpid)] = {u"structure":structure,
-                'e0':e0,'vacancies':vacancies,'antisites':antisites}
+        energy_dict[unicode(mpid)] = {u"structure": structure,
+                                      'e0': e0, 'vacancies': vacancies,
+                                      'antisites': antisites}
 
-        fl_nm = args.mpid+'_raw_defect_energy.json'
+        fl_nm = args.mpid + '_raw_defect_energy.json'
         dumpfn(energy_dict, fl_nm, cls=MontyEncoder, indent=2)
 
 
@@ -422,7 +415,7 @@ def get_def_profile(args):
     if args.file:
         file = args.file 
     else:
-        file = mpid+'_raw_defect_energy.json'
+        file = mpid + '_raw_defect_energy.json'
 
     raw_energy_dict = loadfn(file, cls=MontyDecoder)
 
@@ -449,7 +442,7 @@ def get_def_profile(args):
             with MPRester() as mp:
                 entries = mp.get_entries_in_chemsys(struct.symbol_set)
         else:
-            with MPRester(mapi_key) as mp:
+            with MPRester(args.mapi_key) as mp:
                 entries = mp.get_entries_in_chemsys(struct.symbol_set)
 
         from pymatgen.phasediagram.analyzer import PDAnalyzer, PhaseDiagram
@@ -466,20 +459,17 @@ def get_def_profile(args):
     try:
         def_conc, def_en, mu = compute_defect_density(
             struct, e0, vacs, antisites, T, constrained_species=cs,
-            trial_chem_pot=mu,
-            comps=comps,
-            #trial_chem_pot={'Mn': -9.15935, 'Ni': -5.93183, 'In': -2.94745},
-            plot_style='gnuplot')
-        fl_nm = mpid+'_def_concentration.dat'
-        with open(fl_nm,'w') as fp:
+            trial_chem_pot=mu, comps=comps, plot_style='gnuplot')
+        fl_nm = mpid + '_def_concentration.dat'
+        with open(fl_nm, 'w') as fp:
             for row in def_conc:
                 print >> fp, row
-        fl_nm = mpid+'_def_energy.dat'
-        with open(fl_nm,'w') as fp:
+        fl_nm = mpid + '_def_energy.dat'
+        with open(fl_nm, 'w') as fp:
             for row in def_en:
                 print >> fp, row
-        fl_nm = mpid+'_chem_pot.dat'
-        with open(fl_nm,'w') as fp:
+        fl_nm = mpid + '_chem_pot.dat'
+        with open(fl_nm, 'w') as fp:
             for row in mu:
                 print >> fp, row
     except:
@@ -496,7 +486,7 @@ def get_solute_def_profile(args):
 
     mpid = args.mpid 
     solute = args.solute 
-    solute_conc = args.solute_conc#/100.0
+    solute_conc = args.solute_conc
     T = args.T
     cs = args.constrained_species
 
@@ -518,7 +508,7 @@ def get_solute_def_profile(args):
             with MPRester() as mp:
                 entries = mp.get_entries_in_chemsys(struct.symbol_set)
         else:
-            with MPRester(mapi_key) as mp:
+            with MPRester(args.mapi_key) as mp:
                 entries = mp.get_entries_in_chemsys(struct.symbol_set)
 
         from pymatgen.phasediagram.analyzer import PDAnalyzer, PhaseDiagram
@@ -564,7 +554,6 @@ def get_solute_def_profile(args):
         #mu = dict(zip(keys, mu.values()))
 
         #print ("Second style mu", mu)
-
 
     if args.comp_file:
         comps = loadfn(args.comp_file)
@@ -637,8 +626,7 @@ def main():
             dest="cellmax", help=cell_string)
     parser_vasp_inp.set_defaults(func=vac_antisite_def_struct_gen)
 
-
-    parser_sol_vasp_inp = subparsers.add_parser("gen_sol_pref_structure", 
+    parser_sol_vasp_inp = subparsers.add_parser("gen_sol_pref_structure",
             help="Vasp input files for extrinsic substitutional defects.")
     parser_sol_vasp_inp.add_argument("--mpid", type=str.lower, dest="mpid",
             help=MP_string)
@@ -650,8 +638,7 @@ def main():
             dest="cellmax", help=cell_string)
     parser_sol_vasp_inp.set_defaults(func=substitute_def_struct_gen)
 
-
-    parser_vasp_out = subparsers.add_parser("gen_def_energy", 
+    parser_vasp_out = subparsers.add_parser("gen_def_energy",
             help = 'Command to parse vacancy and antisite defect ' \
                    'energies for intermetallics from the VASP DFT ' \
                    'calculations.')
@@ -661,8 +648,7 @@ def main():
             help=MAPI_string)
     parser_vasp_out.set_defaults(func=vac_antisite_def_parse_energy)
 
-
-    parser_sol_vasp_out = subparsers.add_parser("gen_sol_def_energy", 
+    parser_sol_vasp_out = subparsers.add_parser("gen_sol_def_energy",
             help = 'Command to parse solute substitution defect ' \
                    'energies for intermetallics from the VASP DFT ' \
                    'calculations.')
@@ -674,8 +660,7 @@ def main():
             dest="mapi_key", help=MAPI_string)
     parser_sol_vasp_out.set_defaults(func=solute_def_parse_energy)
 
-
-    parser_conc = subparsers.add_parser("gen_def_profile", 
+    parser_conc = subparsers.add_parser("gen_def_profile",
             help = 'Command to generate vacancy and antisite defect ' \
                    'concentration for intermetallics from the raw defect '\
                    'energies.' )
@@ -697,10 +682,9 @@ def main():
                              dest="comp_file", help=comp_file_string)
     parser_conc.set_defaults(func=get_def_profile)
 
-
     parser_sol_conc = subparsers.add_parser("gen_sol_site_pref", 
             help = "Command to generate solute defect site preference "  \
-                   "for intermetallics from the raw defect energies." )
+                   "for intermetallics from the raw defect energies.")
     parser_sol_conc.add_argument("--mpid", type=str.lower, dest="mpid",
             help=MAPI_string)
     parser_sol_conc.add_argument("--mapi_key", default=None, dest="mapi_key",
@@ -720,7 +704,6 @@ def main():
     parser_sol_conc.add_argument("--composition_file", default=None,
             dest="comp_file", help=comp_file_string)
     parser_sol_conc.set_defaults(func=get_solute_def_profile)
-
 
     args = parser.parse_args()
     args.func(args)
