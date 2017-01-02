@@ -132,11 +132,11 @@ def get_dE(M, n, vac_defs, antisite_defs, solute_defs=None):
                     if def_site_specie == site_specie and def_site_ind == j+1:
                         dE[n, j] = solute_def['energy']
                         break
-        dE = np.array(dE, dtype=np.float128)
         return dE
 
 
 def get_site_conc(M, n, c0, dC, dE, mu, site_mu_map, beta):
+    print ('mu', mu)
     c = np.zeros((M, n), dtype=np.float64)
     for i in range(M):
         for p in range(n):
@@ -145,12 +145,12 @@ def get_site_conc(M, n, c0, dC, dE, mu, site_mu_map, beta):
             for epi in range(M):
                 sum_mu = sum([mu[site_mu_map[j]] * dC[j, epi, p] \
                               for j in range(M)])
-                #print (i, p, epi, sum_mu, (dE[epi, p] - sum_mu) * beta)
                 flip = dC[i, epi, p] * math.exp(-(dE[epi, p] - sum_mu) * beta)
+                if i == M-1:
+                    print (i, epi, p, 'flip', flip)
                 if flip not in site_flip_contribs:
                     site_flip_contribs.append(flip)
                     c[i, p] += flip
-    #print (c)
     return c
 
 
@@ -158,6 +158,7 @@ def get_specie_conc(M, n, c0, dC, dE, specie_site_index_map, multiplicity,
                     mu, site_mu_map, beta):
     total_c = []
     c = get_site_conc(M, n, c0, dC, dE, mu, site_mu_map, beta)
+    print ('specie_site_index_map', specie_site_index_map)
     for ind in specie_site_index_map:
         val = 0
         for i in range(*ind):
@@ -171,7 +172,9 @@ def get_conc_ratios(M, n, m, c0, dC, dE, specie_site_index_map, multiplicity,
                     mu, site_mu_map, beta):
     total_c = get_specie_conc(M, n, c0, dC, dE, specie_site_index_map,
                               multiplicity, mu, site_mu_map, beta)
+    print ('total_c', total_c)
     c_ratio = [total_c[i]/total_c[0] for i in range(1, m)]
+    print ('c_ratio', c_ratio)
     return c_ratio
 
 
@@ -188,8 +191,9 @@ def get_omega(M, n, dC, dE, e0, c0, multiplicity, mu, site_mu_map, beta):
                 continue
             if dE[epi, p_r] not in used_dEs:
                 omega -= multiplicity[p_r] / beta * \
-                              math.exp(-(dE[epi, p_r]-sum_mu) * beta)
+                              math.exp(-(dE[epi, p_r] - sum_mu) * beta)
                 used_dEs.append(dE[epi, p_r])
+    print ('omega', omega)
     return omega
 
 
@@ -811,7 +815,6 @@ def solute_site_preference_finder(structure, e0, T, vac_defs, antisite_defs,
     e0 = e0/comm_div
     T = Float(T)
 
-    #c0 = np.diag(multiplicity)
     c0 = np.diag(np.ones(n+1))
     c0[n,n] = 0
     mu = [Symbol('mu'+str(i)) for i in range(m)]
@@ -1376,7 +1379,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
         if i < m-1:
             hgh_ind = site_species.index(specie_order[i+1])
         else:
-            hgh_ind = n
+            hgh_ind = M
         specie_site_index_map.append((low_ind, hgh_ind))
 
         # Set the constriained specie index range
@@ -1449,10 +1452,10 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
 
             return conc_rat - ys
 
-        #return opt.newton_krylov(conc_ratio_omega, guess, method='lgmres',
-        #                         verbose=0, f_tol=1e-8)
+        return opt.newton_krylov(conc_ratio_omega, guess, method='cgs',
+                                 verbose=0, f_tol=1e-8)
         #return opt.fsolve(conc_ratio_omega, guess, xtol=1e-4)
-        return opt.broyden1(conc_ratio_omega, guess, verbose=0, f_tol=1e-8)
+        #return opt.broyden1(conc_ratio_omega, guess, verbose=0, f_tol=1e-8)
 
 
     sum_comp = sum(comps[key] for key in comps)
@@ -1462,7 +1465,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
         comp_diff = (np.array(center_comps)
                      - np.array(stoic_comps))
         ys = []
-        for i in range(90, 91):
+        for i in range(1, 91):
             y1s = list(np.array(stoic_comps) + i*comp_diff/90.0)
             y1s.append(0)
             y1s = np.array(y1s)/y1s[0]
@@ -1759,9 +1762,8 @@ def solute_defect_density_no_sympy(structure, e0, vac_defs, antisite_defs,
             flds= name.split('_')
             def_string = flds[0]
             site_string = flds[1].strip('{}')
-            name = def_string+"<sub>"+site_string+"</sub>"
-            #series.append({'data':xy, 'name':y_data['name']})
-            series.append({'data':xy, 'name':name})
+            name = def_string + "<sub>" + site_string + "</sub>"
+            series.append({'data': xy, 'name': name})
         hgh_chrt_data['series'] = series
         return hgh_chrt_data
     elif plot_style == 'gnuplot':
@@ -1773,17 +1775,15 @@ def solute_defect_density_no_sympy(structure, e0, vac_defs, antisite_defs,
                 labels.append(inp_data['y_label'])
             else:
                 labels += [y['name'] for y in inp_data['y']]
-            rows.append('#'+'\t'.join(labels))
+            rows.append('#' + '\t'.join(labels))
             m = len(inp_data['x'])
             for i in range(m):
                 data = []
                 data.append(inp_data['x'][i])
                 data += [y['data'][i] for y in inp_data['y']]
                 data = [float(x) for x in data]
-                rows.append('\t'.join(list(map(str,data))))
+                rows.append('\t'.join(list(map(str, data))))
             return rows
-        #solute_site_pref_rows = data_to_rows(solute_site_pref_data, True)
         pt_def_conc_rows = data_to_rows(def_conc_data, False)
-        #return solute_site_pref_rows, pt_def_conc_rows
         return pt_def_conc_rows
 
