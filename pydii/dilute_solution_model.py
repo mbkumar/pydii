@@ -1414,7 +1414,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
     print ('stoic_comps', stoic_comps)
 
     if not constrained_species:
-        constrained_species.append(solute)
+        constrained_species.append(solute_specie)
     for i in range(m):
         if specie_order[i] not in constrained_species:
             independent_ind = i
@@ -1490,6 +1490,32 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
         sol = find_mus(ys, trial_mu)
         trial_mu = sol
 
+    print ('constrained_species', constrained_species)
+    def get_ys1(center_comps, indep_comp_lim, delta):
+        yvals = []
+        indep_comp_strt = center_comps[independent_ind]
+        for indep_comp in np.arange(indep_comp_strt, indep_comp_lim+delta,
+                                    delta):
+            comps = []
+            for i in range(m):
+                specie = specie_order[i]
+                if specie in constrained_species:
+                    comp_i = center_comps[i]
+                    print ('yes, constrained species found', comp_i)
+                    comps.append(comp_i)
+                elif i == independent_ind:
+                    comps.append(indep_comp)
+                else:
+                    comp_i = center_comps[i]+ center_comps[independent_ind] - \
+                             indep_comp
+                    comps.append(comp_i)
+            ys = comps[1:]
+            ys.append(0)
+            ys = np.array(ys)/comps[0]
+            yvals.append(ys)
+        return yvals
+
+
     init_mu = trial_mu
 
     indep_comp_min = center_comps[independent_ind]
@@ -1501,6 +1527,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
     #print (trial_mu)
     mus1 = []
     success_yvals1 = []
+    print 'No of yvals2', len(yvals1)
     for i, ys in enumerate(yvals1):
         print ('yvals2', i, ys)
         #print (trial_mu)
