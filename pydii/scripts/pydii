@@ -527,33 +527,33 @@ def get_solute_def_profile(args):
 
         print ('First style mu', mu)
 
-        #symbols = list(struct.symbol_set)
-        #symbols.append(solute)
-        #if not args.mapi_key:
-        #    with MPRester() as mp:
-        #        entries = mp.get_entries_in_chemsys(symbols)
-        #else:
-        #    with MPRester(mapi_key) as mp:
-        #        entries = mp.get_entries_in_chemsys(symbols)
+        symbols = list(struct.symbol_set)
+        symbols.append(solute)
+        if not args.mapi_key:
+            with MPRester() as mp:
+                entries = mp.get_entries_in_chemsys(symbols)
+        else:
+            with MPRester(mapi_key) as mp:
+                entries = mp.get_entries_in_chemsys(symbols)
 
-        #from pymatgen.phasediagram.analyzer import PDAnalyzer, PhaseDiagram
-        #pd_analyzer = PDAnalyzer(PhaseDiagram(entries))
+        from pymatgen.phasediagram.analyzer import PDAnalyzer, PhaseDiagram
+        pd_analyzer = PDAnalyzer(PhaseDiagram(entries))
 
-        #comp = struct.composition
-        #comp_vals = comp.values()
-        #comp_v = [(100-solute_conc)/sum(comp_vals) * v for v in comp_vals]
-        #comp_v.append(solute_conc)
-        #comp_v = [v*sum(comp_vals)/100 for v in comp_v]
-        #keys = comp.keys()
-        #keys.append(solute)
-        #comps = dict(zip(keys, comp_v))
-        #comps = Composition(comps)
+        comp = struct.composition
+        comp_vals = comp.values()
+        comp_v = [(100-solute_conc)/sum(comp_vals) * v for v in comp_vals]
+        comp_v.append(solute_conc)
+        comp_v = [v*sum(comp_vals)/100 for v in comp_v]
+        keys = comp.keys()
+        keys.append(solute)
+        comps = dict(zip(keys, comp_v))
+        comps = Composition(comps)
         #print comps
-        #mu = pd_analyzer.get_composition_chempots(comps)
-        #keys = [key.symbol for key in mu]
-        #mu = dict(zip(keys, mu.values()))
+        mu = pd_analyzer.get_composition_chempots(comps)
+        keys = [key.symbol for key in mu]
+        mu = dict(zip(keys, mu.values()))
 
-        #print ("Second style mu", mu)
+        print ("Second style mu", mu)
 
     if args.comp_file:
         comps = loadfn(args.comp_file)
