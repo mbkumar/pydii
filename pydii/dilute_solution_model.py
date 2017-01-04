@@ -136,7 +136,7 @@ def get_dE(M, n, vac_defs, antisite_defs, solute_defs=None):
 
 
 def get_site_conc(M, n, c0, dC, dE, mu, site_mu_map, beta):
-    print ('mu', mu)
+    #print ('mu', mu)
     c = np.zeros((M, n), dtype=np.float128)
     for i in range(M):
         for p in range(n):
@@ -175,7 +175,7 @@ def get_conc_ratios(M, n, m, c0, dC, dE, specie_site_index_map, multiplicity,
                               multiplicity, mu, site_mu_map, beta)
     #print ('total_c', total_c)
     c_ratio = [total_c[i]/total_c[0] for i in range(1, m)]
-    print ('c_ratio', c_ratio)
+    #print ('c_ratio', c_ratio)
     return c_ratio
 
 
@@ -197,7 +197,7 @@ def get_omega(M, n, dC, dE, e0, c0, multiplicity, mu, site_mu_map, beta):
                 omega -= multiplicity[p_r] / beta * \
                               math.exp(-(dE[epi, p_r] - sum_mu) * beta)
                 used_dEs.append(dE[epi, p_r])
-    print ('omega', omega)
+    #print ('omega', omega)
     return omega
 
 
@@ -448,7 +448,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         indep_comp_max = center_comps[independent_ind]+1
         delta = (indep_comp_max - indep_comp_min)/48.0
         yvals1 = get_ys(center_comps, indep_comp_min, indep_comp_max, delta)
-        print ('yvals', yvals1[:2])
+        #print ('yvals', yvals1[:2])
         trial_mu = init_mu #[-9.159,-2.947,-5.9318]
         #print (trial_mu)
         mus1 = []
@@ -479,7 +479,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         raise NotImplementedError("Chempot search is not implemented")
 
     yvals = success_yvals0 + success_yvals1
-    print specie_order
+    #print specie_order
     result = mus0 + mus1
     # Compile mu's for all composition ratios in the range
     #+/- 1% from the stoichiometry
@@ -506,7 +506,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         res.append(res1)
 
     res = np.array(res, dtype=np.float128)
-    print res.dtype
+    #print res.dtype
     print ('res 0', res[0])
     dtype = [(str('x'), np.float128)] + [(str('y%d%d' % (i, j)), np.float128) \
             for i in range(n) for j in range(n)]
@@ -1348,14 +1348,14 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
     m = len(set(site_species))      # distinct species
     M = len(site_species)
     n = len(vac_defs)           # inequivalent sites
-    print ('m', 'M', 'n', m, M, n)
+    #print ('m', 'M', 'n', m, M, n)
 
     # Reduce the system and associated parameters such that only distinctive
     # atoms are retained
     comm_div = gcd(*tuple(multiplicity))
     multiplicity = [val/comm_div for val in multiplicity]
     e0 = e0/comm_div
-    print ('multiplicity', multiplicity)
+    #print ('multiplicity', multiplicity)
 
     #c0 = np.diag(np.ones(n))
     c0 = np.identity(M)
@@ -1391,11 +1391,11 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
 
     dC = get_dC(M, n, site_species, specie_site_index_map)
     dE = get_dE(M, n, vac_defs, antisite_defs, solute_defs=solute_defs)
-    print ('dC', dC)
-    print ('dE', dE)
+    #print ('dC', dC)
+    #print ('dE', dE)
 
-    print ('comps', comps)
-    print ('trial_chem_pot', trial_chem_pot)
+    #print ('comps', comps)
+    #print ('trial_chem_pot', trial_chem_pot)
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
@@ -1411,7 +1411,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
         else:     # Solute stoic comp is 0
             comp = 0
         stoic_comps.append(comp)
-    print ('stoic_comps', stoic_comps)
+    #print ('stoic_comps', stoic_comps)
 
     if not constrained_species:
         constrained_species.append(solute_specie)
@@ -1477,20 +1477,20 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
         return ys
 
     center_comps = [comps[specie_order[i]] for i in range(m)]
-    print ('center comps', center_comps)
+    #print ('center comps', center_comps)
     init_mu = [trial_chem_pot[element] for element in specie_order]
-    print ('init mu', init_mu)
+    #print ('init mu', init_mu)
     yvals1 = get_ys_stoic_to_center(stoic_comps, center_comps)
     trial_mu = init_mu
-    print ('yvals1', yvals1[0:4])
+    #print ('yvals1', yvals1[0:4])
 
     for i, ys in enumerate(yvals1):
-        print ('inside the yvals1')
-        print ('\n', 'i', 'ys', i, ys)
+        #print ('inside the yvals1')
+        #print ('\n', 'i', 'ys', i, ys)
         sol = find_mus(ys, trial_mu)
         trial_mu = sol
 
-    print ('constrained_species', constrained_species)
+    #print ('constrained_species', constrained_species)
     def get_ys1(center_comps, indep_comp_lim, delta):
         yvals = []
         indep_comp_strt = center_comps[independent_ind]
@@ -1501,7 +1501,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
                 specie = specie_order[i]
                 if specie in constrained_species:
                     comp_i = center_comps[i]
-                    print ('yes, constrained species found', comp_i)
+                    #print ('yes, constrained species found', comp_i)
                     comps.append(comp_i)
                 elif i == independent_ind:
                     comps.append(indep_comp)
@@ -1522,14 +1522,14 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
     indep_comp_max = center_comps[independent_ind]+1
     delta = (indep_comp_max - indep_comp_min)/48.0
     yvals1 = get_ys(center_comps, indep_comp_min, indep_comp_max, delta)
-    print ('yvals', yvals1[:2])
+    #print ('yvals', yvals1[:2])
     trial_mu = init_mu #[-9.159,-2.947,-5.9318]
     #print (trial_mu)
     mus1 = []
     success_yvals1 = []
-    print 'No of yvals2', len(yvals1)
+    #print 'No of yvals2', len(yvals1)
     for i, ys in enumerate(yvals1):
-        print ('yvals2', i, ys)
+        #print ('yvals2', i, ys)
         #print (trial_mu)
         sol = find_mus(ys, trial_mu)
         mus1.append(sol)
@@ -1543,7 +1543,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
     mus0 = []
     success_yvals0 = []
     trial_mu = init_mu #[-9.159,-2.947,-5.9318]
-    print '2nd round of yvals'
+    #print '2nd round of yvals'
     for i, ys in enumerate(yvals0):
 
         sol = find_mus(ys, trial_mu)
@@ -1552,7 +1552,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
         trial_mu = sol
 
     yvals = success_yvals0 + success_yvals1
-    print specie_order
+    #print specie_order
     result = mus0 + mus1
     # Compile mu's for all composition ratios in the range
     #+/- 1% from the stoichiometry
@@ -1562,8 +1562,9 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
     # Compute the concentrations for all the compositions
     for mu_ind in range(len(result)):
         mu_val = result[mu_ind]
-        total_c = get_specie_conc(mu_val)
-        c = get_site_conc(mu_val)
+        total_c = get_specie_conc(M, n, c0, dC, dE, specie_site_index_map, 
+                                  multiplicity, mu_val, site_mu_map, beta)
+        c = get_site_conc(M, n, c0, dC, dE, mu_val, site_mu_map, beta)
         res1 = []
         # Concentration of independent element/over total concen
         res1.append(total_c[independent_ind]/sum(total_c))
@@ -1572,7 +1573,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
         for i in range(M):
             for j in range(n):
                 if i == j:              # Vacancy
-                    vac_conc = exp(-(mu_val[site_mu_map[i]]+dE[i,i]) * beta)
+                    vac_conc = math.exp(-(mu_val[site_mu_map[i]]+dE[i,i])*beta)
                     res1.append(vac_conc)
                 else:                   # Antisite
                     res1.append(c[i,j]/c0[j,j])
