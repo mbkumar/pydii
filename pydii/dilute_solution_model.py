@@ -107,7 +107,7 @@ def get_dC(M, n, site_species, specie_site_index_map):
 
 def get_dE(M, n, vac_defs, antisite_defs, solute_defs=None):
         # dE matrix: Flip energies (or raw defect energies)
-        dE = np.zeros((M, n), dtype=np.float64)
+        dE = np.zeros((M, n), dtype=np.float128)
 
         for j in range(n):
             site_specie = vac_defs[j]['site_specie']
@@ -137,7 +137,7 @@ def get_dE(M, n, vac_defs, antisite_defs, solute_defs=None):
 
 def get_site_conc(M, n, c0, dC, dE, mu, site_mu_map, beta):
     print ('mu', mu)
-    c = np.zeros((M, n), dtype=np.float64)
+    c = np.zeros((M, n), dtype=np.float128)
     for i in range(M):
         for p in range(n):
             c[i, p] = c0[i, p]
@@ -146,8 +146,9 @@ def get_site_conc(M, n, c0, dC, dE, mu, site_mu_map, beta):
                 sum_mu = sum([mu[site_mu_map[j]] * dC[j, epi, p] \
                               for j in range(M)])
                 flip = dC[i, epi, p] * math.exp(-(dE[epi, p] - sum_mu) * beta)
-                if i == M-1:
-                    print (i, epi, p, 'flip', flip)
+                #if i == M-1 and epi == M-1:
+                #    print (i, epi, p, 'sum_mu', sum_mu, 'dE',
+                #           dE[epi, p], 'flip', flip)
                 if flip not in site_flip_contribs:
                     site_flip_contribs.append(flip)
                     c[i, p] += flip
@@ -158,7 +159,7 @@ def get_specie_conc(M, n, c0, dC, dE, specie_site_index_map, multiplicity,
                     mu, site_mu_map, beta):
     total_c = []
     c = get_site_conc(M, n, c0, dC, dE, mu, site_mu_map, beta)
-    print ('specie_site_index_map', specie_site_index_map)
+    #print ('specie_site_index_map', specie_site_index_map)
     for ind in specie_site_index_map:
         val = 0
         for i in range(*ind):
@@ -172,7 +173,7 @@ def get_conc_ratios(M, n, m, c0, dC, dE, specie_site_index_map, multiplicity,
                     mu, site_mu_map, beta):
     total_c = get_specie_conc(M, n, c0, dC, dE, specie_site_index_map,
                               multiplicity, mu, site_mu_map, beta)
-    print ('total_c', total_c)
+    #print ('total_c', total_c)
     c_ratio = [total_c[i]/total_c[0] for i in range(1, m)]
     print ('c_ratio', c_ratio)
     return c_ratio
@@ -180,8 +181,11 @@ def get_conc_ratios(M, n, m, c0, dC, dE, specie_site_index_map, multiplicity,
 
 # Expression for Omega, the Grand Potential
 def get_omega(M, n, dC, dE, e0, c0, multiplicity, mu, site_mu_map, beta):
-    omega = e0 - sum([mu[site_mu_map[i]]*sum(c0[i,:])*multiplicity[i] \
-                       for i in range(n)])
+    #omega = e0 - sum([mu[site_mu_map[i]]*sum(c0[i,:])*multiplicity[i] \
+    #                   for i in range(n)])
+    omega = e0 - sum([mu[site_mu_map[i]] * \
+                      sum(c0[i, p] * multiplicity[p] for p in range (n)) \
+                      for i in range(M)])
     used_dEs = []
     for p_r in range(n):
         for epi in range(M):
@@ -498,14 +502,13 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                     vac_conc = math.exp(-(mu_val[site_mu_map[i]]+dE[i,i])*beta)
                     res1.append(vac_conc)
                 else:                   # Antisite
-                    #res1.append(float(c[i,j]/c0[j,j]))
                     res1.append(c[i,j]/c0[j,j])
         res.append(res1)
 
-    res = np.array(res, dtype=np.float64)
+    res = np.array(res, dtype=np.float128)
     print res.dtype
     print ('res 0', res[0])
-    dtype = [(str('x'), np.float64)] + [(str('y%d%d' % (i, j)), np.float64) \
+    dtype = [(str('x'), np.float128)] + [(str('y%d%d' % (i, j)), np.float128) \
             for i in range(n) for j in range(n)]
     res.view(dtype)
     res1 = np.sort(res.view(dtype), order=[str('x')], axis=0)
@@ -575,7 +578,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             ind = specie_order.index(site_specie)
             uncor_energy = vac_def['energy']
             formation_energy = uncor_energy + mu_vals[ind]
-            en.append(float(formation_energy))
+            en.append(formation_energy)
         return en
     en_res = []
     for key in sorted(new_mu_dict.keys()):
@@ -734,7 +737,7 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
                 data = []
                 data.append(inp_data['x'][i])
                 data += [y['data'][i] for y in inp_data['y']]
-                data = [float(x) for x in data]
+                data = [x for x in data]
                 rows.append('\t'.join(list(map(str,data))))
             return rows
         conc_rows = data_to_rows(conc_data)
@@ -1194,7 +1197,7 @@ def solute_site_preference_finder(structure, e0, T, vac_defs, antisite_defs,
         res.append(res1)
 
     res = np.array(res)
-    dtype = [(str('x'),np.float64)]+[(str('y%d%d' % (i, j)), np.float64) \
+    dtype = [(str('x'),np.float128)]+[(str('y%d%d' % (i, j)), np.float128) \
             for i in range(n+1) for j in range(n)]
     res1 = np.sort(res.view(dtype),order=[str('x')],axis=0)
 
@@ -1452,20 +1455,21 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
             return conc_rat - ys
 
         return opt.newton_krylov(conc_ratio_omega, guess, method='cgs',
-                                 verbose=0, f_tol=1e-8)
+                                 verbose=0, f_tol=1e-4)
         #return opt.fsolve(conc_ratio_omega, guess, xtol=1e-4)
         #return opt.broyden1(conc_ratio_omega, guess, verbose=0, f_tol=1e-8)
 
 
-    sum_comp = sum(comps[key] for key in comps)
+    #sum_comp = sum(comps[key] for key in comps)
+    sum_comp = sum(comps.values())
     if sum_comp != 100.0:
         raise ValueError("Sum of compositions not equal to 100")
     def get_ys_stoic_to_center(stoic_comps, center_comps):
         comp_diff = (np.array(center_comps)
                      - np.array(stoic_comps))
         ys = []
-        for i in range(1, 91):
-            y1s = list(np.array(stoic_comps) + i*comp_diff/90.0)
+        for i in range(10, 901):
+            y1s = list(np.array(stoic_comps) + i*comp_diff/900.0)
             y1s.append(0)
             y1s = np.array(y1s)/y1s[0]
             y1s = list(y1s)[1:]
@@ -1482,7 +1486,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
 
     for i, ys in enumerate(yvals1):
         print ('inside the yvals1')
-        print ('i', 'ys', i, ys)
+        print ('\n', 'i', 'ys', i, ys)
         sol = find_mus(ys, trial_mu)
         trial_mu = sol
 
@@ -1498,8 +1502,8 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
     mus1 = []
     success_yvals1 = []
     for i, ys in enumerate(yvals1):
-        print (i)
-        print (trial_mu)
+        print ('yvals2', i, ys)
+        #print (trial_mu)
         sol = find_mus(ys, trial_mu)
         mus1.append(sol)
         success_yvals1.append(ys)
@@ -1512,7 +1516,9 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
     mus0 = []
     success_yvals0 = []
     trial_mu = init_mu #[-9.159,-2.947,-5.9318]
+    print '2nd round of yvals'
     for i, ys in enumerate(yvals0):
+
         sol = find_mus(ys, trial_mu)
         mus0.append(sol)
         success_yvals0.append(ys)
@@ -1533,7 +1539,7 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
         c = get_site_conc(mu_val)
         res1 = []
         # Concentration of independent element/over total concen
-        res1.append(float(total_c[independent_ind]/sum(total_c)))
+        res1.append(total_c[independent_ind]/sum(total_c))
         new_mu_dict[res1[0]] = mu_val
         sum_c0 = sum([c0[i,i] for i in range(n)])
         for i in range(M):
@@ -1545,8 +1551,8 @@ def solute_site_preference_finder_without_sympy(structure, e0, T, vac_defs,
                     res1.append(c[i,j]/c0[j,j])
         res.append(res1)
 
-    res = np.array(res, dtype=np.float64)
-    dtype = [(str('x'), np.float64)] + [(str('y%d%d' % (i, j)), np.float64) \
+    res = np.array(res, dtype=np.float128)
+    dtype = [(str('x'), np.float128)] + [(str('y%d%d' % (i, j)), np.float128) \
                                         for i in range(M) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=[str('x')], axis=0)
 
@@ -1780,7 +1786,7 @@ def solute_defect_density_no_sympy(structure, e0, vac_defs, antisite_defs,
                 data = []
                 data.append(inp_data['x'][i])
                 data += [y['data'][i] for y in inp_data['y']]
-                data = [float(x) for x in data]
+                data = [x for x in data]
                 rows.append('\t'.join(list(map(str, data))))
             return rows
         pt_def_conc_rows = data_to_rows(def_conc_data, False)
