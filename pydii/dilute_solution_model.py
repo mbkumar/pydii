@@ -495,8 +495,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         for i in range(n):
             for j in range(n):
                 if i == j:              # Vacancy
-                    #vac_conc = float(exp(-(mu_val[site_mu_map[i]]+dE[i,i])/(k_B*T)))
-                    vac_conc = exp(-(mu_val[site_mu_map[i]]+dE[i,i])*beta)
+                    vac_conc = math.exp(-(mu_val[site_mu_map[i]]+dE[i,i])*beta)
                     res1.append(vac_conc)
                 else:                   # Antisite
                     #res1.append(float(c[i,j]/c0[j,j]))
@@ -655,8 +654,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     return conc_data, en_data, mu_data
 
 
-@requires(sympy_found,
-          "compute_defect_density requires Sympy module. Please install it.")
+@requires(scipy_found,
+          "compute_defect_density requires scipy module. Please install it.")
 def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
                            trial_chem_pot=None, constrained_species=[],
                            comps=None, plot_style="highcharts"):
