@@ -36,12 +36,6 @@ try:
 except ImportError:
     scipy_found = False
 
-try:
-    from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve, Eq
-    sympy_found = True
-except ImportError:
-    sympy_found = False
-
 # physical consts
 k_B = 8.6173324e-5                # eV/K
 
