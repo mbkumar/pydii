@@ -27,7 +27,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.matproj.rest import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pydii.dilute_solution_model import compute_defect_density, \
-    solute_defect_density, solute_defect_density_no_sympy
+    solute_defect_density, solute_defect_density
 
 
 def get_sc_scale(inp_struct, final_site_no):
@@ -533,7 +533,7 @@ def get_solute_def_profile(args):
             with MPRester() as mp:
                 entries = mp.get_entries_in_chemsys(symbols)
         else:
-            with MPRester(mapi_key) as mp:
+            with MPRester(args.mapi_key) as mp:
                 entries = mp.get_entries_in_chemsys(symbols)
 
         from pymatgen.phasediagram.analyzer import PDAnalyzer, PhaseDiagram
@@ -544,6 +544,7 @@ def get_solute_def_profile(args):
         comp_v = [(100-solute_conc)/sum(comp_vals) * v for v in comp_vals]
         comp_v.append(solute_conc)
         comp_v = [v*sum(comp_vals)/100 for v in comp_v]
+        print comp_vals, comp_v
         keys = comp.keys()
         keys.append(solute)
         comps = dict(zip(keys, comp_v))
@@ -552,6 +553,8 @@ def get_solute_def_profile(args):
         mu = pd_analyzer.get_composition_chempots(comps)
         keys = [key.symbol for key in mu]
         mu = dict(zip(keys, mu.values()))
+        #for k in mu:
+        #    mu[k] += 1.0
         mu[solute] += 1.0
 
         print ("Second style mu", mu)
@@ -579,7 +582,7 @@ def get_solute_def_profile(args):
             continue
 
     try:
-        def_conc = solute_defect_density_no_sympy(
+        def_conc = solute_defect_density(
             struct, e0, vacs, antisites, solutes,  T, mu, comps,
             constrained_species=cs, plot_style="gnuplot")
         fl_nm = args.mpid+'_solute-'+args.solute+'_def_concentration.dat'

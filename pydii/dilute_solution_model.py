@@ -32,6 +32,7 @@ from monty.fractions import gcd
 
 try:
     import scipy.optimize as opt
+    import scipy.sparse.linalg as spla
     scipy_found = True
 except ImportError:
     scipy_found = False
@@ -101,7 +102,7 @@ def get_dC(M, n, site_species, specie_site_index_map):
 
 def get_dE(M, n, vac_defs, antisite_defs, solute_defs=None):
         # dE matrix: Flip energies (or raw defect energies)
-        dE = np.zeros((M, n), dtype=np.float128)
+        dE = np.zeros((M, n), dtype=np.float64)
 
         for j in range(n):
             site_specie = vac_defs[j]['site_specie']
@@ -131,7 +132,7 @@ def get_dE(M, n, vac_defs, antisite_defs, solute_defs=None):
 
 def get_site_conc(M, n, c0, dC, dE, mu, site_mu_map, beta):
     #print ('mu', mu)
-    c = np.zeros((M, n), dtype=np.float128)
+    c = np.zeros((M, n), dtype=np.float64)
     for i in range(M):
         for p in range(n):
             c[i, p] = c0[i, p]
@@ -499,10 +500,10 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                     res1.append(c[i,j]/c0[j,j])
         res.append(res1)
 
-    res = np.array(res, dtype=np.float128)
+    res = np.array(res, dtype=np.float64)
     #print res.dtype
     print ('res 0', res[0])
-    dtype = [(str('x'), np.float128)] + [(str('y%d%d' % (i, j)), np.float128) \
+    dtype = [(str('x'), np.float64)] + [(str('y%d%d' % (i, j)), np.float64) \
             for i in range(n) for j in range(n)]
     res.view(dtype)
     res1 = np.sort(res.view(dtype), order=[str('x')], axis=0)
@@ -909,8 +910,16 @@ def solute_site_preference_finder(structure, e0, T, vac_defs, antisite_defs,
 
             return conc_rat - ys
 
-        return opt.newton_krylov(conc_ratio_omega, guess, method='cgs',
-                                 verbose=0, f_tol=1e-4)
+        #A = spla.LinearOperator((m, m), conc_ratio_omega, dtype=np.float64)
+        #invA = spla.spilu(A)
+        #invA_x = lambda x: invA.solve(x)
+        #A_inv = spla.LinearOperator((m, m), invA_x, dtype=np.float64)
+        jac = opt.nonlin.BroydenFirst()
+        return opt.newton_krylov(conc_ratio_omega, guess, method='lgmres',
+                                 inner_M=jac.aspreconditioner(), verbose=0,
+                                 f_tol=1e-4)
+        #return opt.excitingmixing(conc_ratio_omega, guess, alpha=1, alphamax=1,
+        #                         f_tol=1e-4, line_search=False)
         #return opt.fsolve(conc_ratio_omega, guess, xtol=1e-4)
         #return opt.broyden1(conc_ratio_omega, guess, verbose=0, f_tol=1e-8)
 
@@ -1034,8 +1043,8 @@ def solute_site_preference_finder(structure, e0, T, vac_defs, antisite_defs,
                     res1.append(c[i,j]/c0[j,j])
         res.append(res1)
 
-    res = np.array(res, dtype=np.float128)
-    dtype = [(str('x'), np.float128)] + [(str('y%d%d' % (i, j)), np.float128) \
+    res = np.array(res, dtype=np.float64)
+    dtype = [(str('x'), np.float64)] + [(str('y%d%d' % (i, j)), np.float64) \
                                         for i in range(M) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=[str('x')], axis=0)
 
