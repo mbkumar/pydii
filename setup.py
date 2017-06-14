@@ -13,7 +13,7 @@ setup(
         name="pydii",
         packages=find_packages(),
         version="1.0.0",
-        install_requires=["pymatgen>=3.0.6", "sympy>=0.7.5", "numpy>=1.8"],
+        install_requires=["pymatgen>=4.7", "sympy>=0.7.5", "numpy>=1.8"],
         author="Bharat Medasani",
         author_email="mbkumar@gmail.com",
         url="http://github.com/mbkumar/pydii",
