@@ -308,7 +308,7 @@ def solute_def_parse_energy(args):
                             'site_multiplicity': site_multiplicity})
     else:
         if not solutes:
-            print "Solute folders do not exist"
+            print ("Solute folders do not exist")
             return {}
 
         print ("Solute {} calculations successful for {}".format(solute, mpid))
@@ -386,7 +386,7 @@ def vac_antisite_def_parse_energy(args):
                               'substitution_specie': substitution_specie,
                               'site_multiplicity': site_multiplicity})
     else:
-        print "All calculations successful for ", mpid
+        print ("All calculations successful for ", mpid)
         e0 = bulk_energy / bulk_sites * structure.num_sites
         for vac in vacancies:
             vac_flip_energy = vac['energy'] - bulk_energy
@@ -427,11 +427,11 @@ def get_def_profile(args):
     antisites.sort(key=lambda entry: entry['site_index'])
     for vac_def in vacs:
         if not vac_def:
-            print 'All vacancy defect energies not present'
+            print ('All vacancy defect energies not present')
             continue
     for antisite_def in antisites:
         if not antisite_def:
-            print 'All antisite defect energies not preset'
+            print ('All antisite defect energies not preset')
             continue
 
     print ('symbol set', struct.symbol_set)
@@ -463,15 +463,15 @@ def get_def_profile(args):
         fl_nm = mpid + '_def_concentration.dat'
         with open(fl_nm, 'w') as fp:
             for row in def_conc:
-                print >> fp, row
+                print(row, end="", file=fp)
         fl_nm = mpid + '_def_energy.dat'
         with open(fl_nm, 'w') as fp:
             for row in def_en:
-                print >> fp, row
+                print(row, end="", file=fp)
         fl_nm = mpid + '_chem_pot.dat'
         with open(fl_nm, 'w') as fp:
             for row in mu:
-                print >> fp, row
+                print(row, end="", file=fp)
     except:
         raise
 
@@ -544,7 +544,7 @@ def get_solute_def_profile(args):
         comp_v = [(100-solute_conc)/sum(comp_vals) * v for v in comp_vals]
         comp_v.append(solute_conc)
         comp_v = [v*sum(comp_vals)/100 for v in comp_v]
-        print comp_vals, comp_v
+        print (comp_vals, comp_v)
         keys = comp.keys()
         keys.append(solute)
         comps = dict(zip(keys, comp_v))
@@ -570,15 +570,15 @@ def get_solute_def_profile(args):
 
     for vac_def in vacs:
         if not vac_def:
-            print 'All vacancy defect energies not present'
+            print ('All vacancy defect energies not present')
             continue
     for antisite_def in antisites:
         if not antisite_def:
-            print 'All antisite defect energies not preset'
+            print ('All antisite defect energies not preset')
             continue
     for solute_def in solutes:
         if not solute_def:
-            print 'All solute defect energies not preset'
+            print ('All solute defect energies not preset')
             continue
 
     try:
@@ -588,7 +588,7 @@ def get_solute_def_profile(args):
         fl_nm = args.mpid+'_solute-'+args.solute+'_def_concentration.dat'
         with open(fl_nm, 'w') as fp:
             for row in def_conc:
-                print >> fp, row 
+                print(row, end="", file=fp)
     except:
         raise
 
