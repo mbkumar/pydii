@@ -24,7 +24,7 @@ from pymatgen.analysis.defects.point_defects import Vacancy
 from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.io.vasp import Kpoints, Vasprun
 from pymatgen.core.composition import Composition
-from pymatgen.matproj.rest import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pydii.dilute_solution_model import compute_defect_density, \
     solute_defect_density, solute_defect_density
@@ -396,7 +396,7 @@ def vac_antisite_def_parse_energy(args):
             as_flip_energy = antisite['energy'] - bulk_energy
             antisite['energy'] = as_flip_energy
         antisites.sort(key=lambda entry: entry['site_index'])
-        energy_dict[unicode(mpid)] = {u"structure": structure,
+        energy_dict[mpid] = {u"structure": structure,
                                       'e0': e0, 'vacancies': vacancies,
                                       'antisites': antisites}
 
@@ -445,11 +445,12 @@ def get_def_profile(args):
             with MPRester(args.mapi_key) as mp:
                 entries = mp.get_entries_in_chemsys(struct.symbol_set)
 
-        from pymatgen.phasediagram.analyzer import PDAnalyzer, PhaseDiagram
-        pd_analyzer = PDAnalyzer(PhaseDiagram(entries))
-        mu = pd_analyzer.get_composition_chempots(struct.composition)
+        from pymatgen.analysis.phase_diagram import PhaseDiagram
+        pd = PhaseDiagram(entries)
+        mu = pd.get_composition_chempots(struct.composition)
         keys = [key.symbol for key in mu]
         mu = dict(zip(keys, mu.values()))
+        print('mu', mu)
 
     if args.comp_file:
         comps = loadfn(args.comp_file)
@@ -511,16 +512,16 @@ def get_solute_def_profile(args):
             with MPRester(args.mapi_key) as mp:
                 entries = mp.get_entries_in_chemsys(struct.symbol_set)
 
-        from pymatgen.phasediagram.analyzer import PDAnalyzer, PhaseDiagram
-        pd_analyzer = PDAnalyzer(PhaseDiagram(entries))
-        mu = pd_analyzer.get_composition_chempots(struct.composition)
+        from pymatgen.analysis.phase_diagram import  PhaseDiagram
+        pd = PhaseDiagram(entries)
+        mu = pd.get_composition_chempots(struct.composition)
         keys = [key.symbol for key in mu]
         mu = dict(zip(keys, mu.values()))
 
         entries_sol = mp.get_entries_in_chemsys([solute])
-        pd_analyzer1 = PDAnalyzer(PhaseDiagram(entries_sol))
+        pd1 = PhaseDiagram(entries_sol)
         comp = Composition(solute)
-        mu1 = pd_analyzer1.get_composition_chempots(comp)
+        mu1 = pd1.get_composition_chempots(comp)
         keys = [key.symbol for key in mu1]
         mu1 = dict(zip(keys, mu1.values()))
         mu.update(mu1)
@@ -536,8 +537,8 @@ def get_solute_def_profile(args):
             with MPRester(args.mapi_key) as mp:
                 entries = mp.get_entries_in_chemsys(symbols)
 
-        from pymatgen.phasediagram.analyzer import PDAnalyzer, PhaseDiagram
-        pd_analyzer = PDAnalyzer(PhaseDiagram(entries))
+        from pymatgen.phasediagram.analyzer import PhaseDiagram
+        pd = PhaseDiagram(entries)
 
         comp = struct.composition
         comp_vals = comp.values()
@@ -550,7 +551,7 @@ def get_solute_def_profile(args):
         comps = dict(zip(keys, comp_v))
         comps = Composition(comps)
         #print comps
-        mu = pd_analyzer.get_composition_chempots(comps)
+        mu = pd.get_composition_chempots(comps)
         keys = [key.symbol for key in mu]
         mu = dict(zip(keys, mu.values()))
         #for k in mu:
